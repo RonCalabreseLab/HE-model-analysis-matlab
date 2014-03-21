@@ -1,9 +1,44 @@
-function [ fitness_error, functional_model, intermediate_data, freerunisistats, tracedata] = primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
-%        [ fitness_error, functional_model, intermediate_data, freerunisi] = primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
-%
+function [ fitness_error, functional_model, intermediate_data, freerunisistats, tracedata] = ...
+    primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
 
+% primary_fitness - Calculate fitness for one Genesis file (one ganglion).
+%
+% Usage:
+% [fitness_error, functional_model, intermediate_data, freerunisi, tracedata] =
+%    primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
+%
+% Parameters:
+%   time: 1st column from Genesis file that contains the time vector.
+%   soma_Vm: 2nd & 3rd columns from Genesis file that contain the soma Vm in [V].
+%   filterNum: Slow wave filter coefficients loaded from baseline_filter_coeff.mat.
+%   HNfirstlast: Time of first and last spikes of each burst [s],
+%   		loaded from HN4_peri_stats.mat.
+%   HNmediansp: Time of each median spike [s], also from HN4_peri_stats.mat.
+%   targets: Structure with target values loaded from targetdata.mat.
+%
+% Returns:
+%   fitness_error: Calculated fitness as difference from target for
+%   	peri & sync all of the following:
+%	(phase, freq, spike height [mV],  slow wave height [mV], duty cycle)
+%   functional_model: Always true.
+%   intermediate_data: Structure with the fitness information that
+%   	contains all the data necessary to redo any calculations or
+%   	analyses from the point of post-spike detection onward.
+%   freerunisistats: Mean and standard deviation (STD) of inter-spike-intervals (ISIs).
+%   tracedata: Soma Vm traces [V].
+%
+% Description:
 % livingdata and nbursts no longer passed.
 % Targets will be passed from calculate fitness
+%
+% Example:
+%
+% See also:
+%
+% Author: Damon Lamb, 2013
+
+% Modified by: Cengiz Gunay <cengique@users.sf.net> 2014/03/21
+% 		Added doc. Start dividing into pieces.
 
 minspikes = 10;
 
