@@ -24,12 +24,16 @@ function [ fitness_error, functional_model, intermediate_data, freerunisistats, 
 %   intermediate_data: Structure with the fitness information that
 %   	contains all the data necessary to redo any calculations or
 %   	analyses from the point of post-spike detection onward.
-%   freerunisistats: Mean and standard deviation (STD) of inter-spike-intervals (ISIs).
-%   tracedata: Soma Vm traces [V].
+%   freerunisistats: Check for initial spikes before inhibitory
+%   	input (during first 15 seconds). If there are none, then
+%   	this is a  'bad' model. Return mean and  standard deviation
+%   	(STD) of inter-spike-intervals (ISIs).
+%   tracedata: Low-pass and high-pass soma Vm traces [V].
 %
 % Description:
-% livingdata and nbursts no longer passed.
-% Targets will be passed from calculate fitness
+% First finds spikes and calculates measures and then fitness errors.
+% Notes: livingdata and nbursts no longer passed. Targets will be
+% passed from CalculateFitness.
 %
 % Example:
 %
@@ -64,11 +68,11 @@ rmsval = zeros(1,nchannels);
 for chanind = 1:nchannels
     % calculate rms (euclidean length divided by sqrt(n)) for each channel
     rmsval(chanind) = norm(hpsoma_Vm(:,chanind))/sqrt(nsamples);
+    % CG: this looks wrong. Why sqrt(nsamples)?
 end
 
-
-
-% Threshold = (the max low pass value) + rms value or raw signal. % alternately, threshold = meanVm + rmsval;
+% Threshold = (the max low pass value) + rms value or raw signal. 
+% alternately, threshold = meanVm + rmsval;
 threshold = max(lpsoma_Vm(8192:end-8192,:)) + rmsval;
 
 spindices = cell(nchannels,1);
@@ -76,7 +80,6 @@ sptimes   = cell(nchannels,1);
 failedspikedetect = false;
 minisi_timesteps = floor(5e-3/(time(2)-time(1))); % 5ms minimum isi, converted to time steps
 for chanind = 1:nchannels
-    %[spindices{chanind}, sptimes{chanind}] = findpeak_ao_v2(time,soma_Vm(:,chanind), threshold(chanind), 1 , 0, 0.02, 1);
     [~, spindices{chanind}]= findpeaks(soma_Vm(:,chanind), 'minpeakheight', threshold(chanind), 'minpeakdistance', minisi_timesteps);
     if length(spindices{chanind}) <= minspikes
         failedspikedetect = true;
