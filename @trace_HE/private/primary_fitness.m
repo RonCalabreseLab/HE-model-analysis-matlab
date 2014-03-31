@@ -42,7 +42,7 @@ function [ fitness_error, functional_model, intermediate_data, freerunisistats, 
 % Author: Damon Lamb, 2013
 
 % Modified by: Cengiz Gunay <cengique@users.sf.net> 2014/03/21
-% 		Added doc. Start dividing into pieces.
+% 		Added doc. Returns more of the measured characteristics.
 
 minspikes = 10;
 
@@ -242,12 +242,16 @@ fitness_error = [
     phasedata.mean.duty(2)- targets.Synchronous.Duty];
 
 fitness_raw = [
+    phasedata.mean.first(1)
     phasedata.mean.phase(1)
+    phasedata.mean.last(1)
     meanSFz(1)
     1e3*meanspkheight(1)
     1e3*slowwave(1)
     phasedata.mean.duty(1)
+    phasedata.mean.first(2)
     phasedata.mean.phase(2)
+    phasedata.mean.last(2)
     meanSFz(2)
     1e3*meanspkheight(2)
     1e3*slowwave(2)
