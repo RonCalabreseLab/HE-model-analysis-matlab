@@ -64,13 +64,22 @@ result_names = ...
     {'phase', 'freq_Hz', 'spike_height_mV',  'slow_wave_height_mV', ...
      'duty_cycle'};
 
+% replicate names for peri and sync
 peri_names = cellfun(@(x)([ 'peri_' x ]), result_names, ...
                      'UniformOutput', false);
 sync_names = cellfun(@(x)([ 'sync_' x ]), result_names, ...
                      'UniformOutput', false);
 
+% DON'T add ganglion number: read as separate files and parameterized
+%all_names = ...
+%    cellfun(@(x)([ 'HE' num2str(a_htr.gangno) '_' x ]), [peri_names, sync_names], ...
+%                    'UniformOutput', false);
+all_names = [peri_names, sync_names];
+
+% TODO: return results_profile object, or subclass
+
 % Warning: returning raw fitness, so targets aren't subtracted -
 % although they are used before that.
 results = cell2struct(num2cell(intermediatedata.fitness_raw), ...
-                      [peri_names, sync_names]);
+                      all_names);
 
