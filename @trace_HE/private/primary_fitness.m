@@ -1,4 +1,4 @@
-function [ fitness_error, functional_model, intermediate_data, freerunisistats, tracedata] = ...
+function [ fitness_raw, functional_model, intermediate_data, freerunisistats, tracedata] = ...
     primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
 
 % primary_fitness - Calculate fitness for one Genesis file (one ganglion).
@@ -43,13 +43,14 @@ function [ fitness_error, functional_model, intermediate_data, freerunisistats, 
 
 % Modified by: Cengiz Gunay <cengique@users.sf.net> 2014/03/21
 % 		Added doc. Returns more of the measured characteristics.
+% 		Used to return fitness_error.
 
 minspikes = 10;
 
 
 %fitness_error = [];
 functional_model = false;
-intermediate_data = [];
+intermediate_data = struct;
 
 nsamples  = size(soma_Vm,1);
 % expects 2 channels (peri and sync), as each soma Vm is saved to a separate file ...
@@ -94,8 +95,8 @@ if any(cellfun(@isempty, spindices)) || failedspikedetect
     % return failed fitness values
    
     fprintf(1,'Failed to detect spikes : null fitness\n');
-    fitness_error = 999*ones(nchannels*5,1);
-   % fitness_raw = 999*ones(nchannels*5,1); no intermediate data to return, removed dgl
+    fitness_error = 999*ones(nchannels*5,1); % return a large error
+    fitness_raw = repmat(NaN, nchannels*7,1); % return NaN
     return;
 end
 %% Check for initial spikes before inhibitory input (during first 15 seconds). 
@@ -161,7 +162,7 @@ for chanind = 1:nchannels
         % TODO figure out / return failed fitness values
         fprintf(1,'failed to isolate bursts : null fitness\n');
         fitness_error = 999*ones(nchannels*5,1);
-       % fitness_raw = 999*ones(nchannels*5,1);
+        fitness_raw = repmat(NaN, nchannels*7,1); % return NaN
         return
     else
         %% initialize arrays
@@ -261,8 +262,11 @@ functional_model = true;
 
 % Intermediate_data contains all the data necessary to redo any calculations or analyses from the
 % point of post-spike detection onward.
-intermediate_data = struct('fitness_raw', fitness_raw, 'phasedata', {phasedata}, 'phasedata_intermediate', {phaseintermediate},...
-    'spiketimes', {sptimes}, 'firstlastraw', {firstlast},'firstlastinds', {firstlastind}, 'medianspikeraw', {medianspike});
+intermediate_data = ...
+    struct('fitness_error', fitness_error, 'phasedata', {phasedata}, ...
+           'phasedata_intermediate', {phaseintermediate},...
+           'spiketimes', {sptimes}, 'firstlastraw', {firstlast}, ...
+           'firstlastinds', {firstlastind}, 'medianspikeraw', {medianspike});
 
 tracedata = struct('lpsoma', lpsoma_Vm, 'hpsoma', hpsoma_Vm);
 
