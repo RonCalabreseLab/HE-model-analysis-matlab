@@ -60,7 +60,8 @@ else
     props = struct;
   end
 
-  prefix_name = [ 'HE' num2str(gangno) ' ' inputname ];
+  % convert input name to proper date
+  prefix_name = [ 'HE' num2str(gangno) ' ' strrep(inputname, '_', '/') ];
   
   a_htr = struct;
   a_htr.peri_tr = ...

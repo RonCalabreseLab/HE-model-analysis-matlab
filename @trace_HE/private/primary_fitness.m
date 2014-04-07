@@ -1,4 +1,4 @@
-function [ fitness_raw, functional_model, intermediate_data, freerunisistats, tracedata] = ...
+function [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
     primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
 
 % primary_fitness - Calculate fitness for one Genesis file (one ganglion).
@@ -20,7 +20,6 @@ function [ fitness_raw, functional_model, intermediate_data, freerunisistats, tr
 %   fitness_error: Calculated fitness as difference from target for
 %   	peri & sync all of the following:
 %	(phase, freq, spike height [mV],  slow wave height [mV], duty cycle)
-%   functional_model: Always true.
 %   intermediate_data: Structure with the fitness information that
 %   	contains all the data necessary to redo any calculations or
 %   	analyses from the point of post-spike detection onward.
@@ -49,7 +48,6 @@ minspikes = 10;
 
 
 %fitness_error = [];
-functional_model = false;
 intermediate_data = struct;
 
 nsamples  = size(soma_Vm,1);
@@ -229,6 +227,19 @@ end
 
 % channel 1 is peri, channel 2 is sync    
 % Compare with targets (note, mV values scaled for comparison for slow wave and spike height)
+fitness_target = [
+    targets.Peristaltic.Phase
+    targets.Peristaltic.Spike_Frequency
+    targets.Spike_Height_mV
+    targets.Slow_Wave_Height_mV
+    targets.Peristaltic.Duty
+    
+    targets.Synchronous.Phase
+    targets.Synchronous.Spike_Frequency
+    targets.Spike_Height_mV
+    targets.Slow_Wave_Height_mV
+    targets.Synchronous.Duty];
+
 fitness_error = [
     phasedata.mean.phase(1)- targets.Peristaltic.Phase
     meanSFz(1)- targets.Peristaltic.Spike_Frequency
@@ -258,15 +269,15 @@ fitness_raw = [
     1e3*slowwave(2)
     phasedata.mean.duty(2)];
 
-functional_model = true;
 
 % Intermediate_data contains all the data necessary to redo any calculations or analyses from the
 % point of post-spike detection onward.
 intermediate_data = ...
-    struct('fitness_error', fitness_error, 'phasedata', {phasedata}, ...
-           'phasedata_intermediate', {phaseintermediate},...
+    struct('fitness_error', fitness_error, 'fitness_target', fitness_target, ...           
+           'phasedata', {phasedata}, 'phasedata_intermediate', {phaseintermediate},...
            'spiketimes', {sptimes}, 'firstlastraw', {firstlast}, ...
-           'firstlastinds', {firstlastind}, 'medianspikeraw', {medianspike});
+           'firstlastinds', {firstlastind}, 'medianspikeraw', {medianspike}, ...
+           'targets', targets);
 
 tracedata = struct('lpsoma', lpsoma_Vm, 'hpsoma', hpsoma_Vm);
 
