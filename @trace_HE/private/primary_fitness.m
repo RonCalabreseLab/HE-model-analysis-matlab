@@ -58,6 +58,7 @@ freerunisistats = struct('mean', -1, 'std', -1);
 %% filter data into low and high freq components
 lpsoma_Vm = filtfilt(filterNum, 1, soma_Vm);
 hpsoma_Vm = soma_Vm - lpsoma_Vm;
+tracedata = struct('lpsoma', lpsoma_Vm, 'hpsoma', hpsoma_Vm);
 
 %% detect peaks (spikes) in unfiltered data
 % calculate spike detection parameters
@@ -138,7 +139,9 @@ for chanind = 1:nchannels
     % loops until a the correct number of bursts are detected.
     for ipower = 1:11 % 11=ceiling(-log(maxspikefreq * max_isi)/log(0.75)) with maxspikefreq = 20 (between burts, so this is extreme)
         firstlastind = findburst(sptimes{chanind}, max_isi, min_spburst, targets.StartTime, targets.EndTime); % changed findburst to a more effective algorithm  Oct 11% removed int32(*) dgl
-        fprintf(1, '%2d : (%3d ?= %2d)  maxisi:= %f\n',ipower, size(firstlastind, 1), targets.n_bursts , max_isi);
+        
+        % CG commented out to clean up output:
+        %fprintf(1, '%2d : (%3d ?= %2d)  maxisi:= %f\n',ipower, size(firstlastind, 1), targets.n_bursts , max_isi);
         if (size(firstlastind, 1) == targets.n_bursts); break; end
         max_isi = max_isi * .75;
         
@@ -279,6 +282,5 @@ intermediate_data = ...
            'firstlastinds', {firstlastind}, 'medianspikeraw', {medianspike}, ...
            'targets', targets);
 
-tracedata = struct('lpsoma', lpsoma_Vm, 'hpsoma', hpsoma_Vm);
 
 end
