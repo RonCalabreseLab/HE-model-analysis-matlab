@@ -23,6 +23,8 @@ function [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
 %   intermediate_data: Structure with the fitness information that
 %   	contains all the data necessary to redo any calculations or
 %   	analyses from the point of post-spike detection onward.
+% 	Reference channel (HN4 peri) is appended to some structures to
+% 	calculate phase off of that phase reference. 
 %   freerunisistats: Check for initial spikes before inhibitory
 %   	input (during first 15 seconds). If there are none, then
 %   	this is a  'bad' model. Return mean and  standard deviation
