@@ -5,17 +5,16 @@ function a_plot = plot_abstract(t, title_str, props)
 % Usage: 
 % a_plot = plot_abstract(t, title_str, props)
 %
-% Description:
-%   If t is a vector of traces, returns a vector of plot objects.
-%
-%   Parameters:
-%	t: A trace_HE object.
-%	title_str: (Optional) String to append to plot title.
-%	props: A structure with any optional properties.
+% Parameters:
+%   t: A trace_HE object.
+%   title_str: (Optional) String to append to plot title.
+%   props: A structure with any optional properties.
 %	  (passed to trace/plotData and plot_stack)
 %
-%   Returns:
-%	a_plot: A plot_abstract object that can be visualized.
+% Returns:
+%   a_plot: A plot_abstract object that can be visualized.
+%
+% Description:
 %
 % See also: trace, trace/plot, plot_abstract
 %
