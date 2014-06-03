@@ -93,5 +93,5 @@ all_names = [peri_names, sync_names];
 % although they are used before that.
 results = profile_HE(cell2struct(num2cell(results_vals), ...
                                  all_names), a_htr, intermediate_data, ...
-                     tracedata, a_htr.peri_tr.id);
+                     tracedata, a_htr.peri_tr.id, props);
 
