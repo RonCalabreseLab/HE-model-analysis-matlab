@@ -78,7 +78,20 @@ a_plot.plots{2} = annotate_plot(2, 'sync');
                   ' gmax \{synwt\d+ \* ([\d\.e+-]+)\}'], 'tokens');
       %disp([ 'HE' num2str(he_num) ' from HN' num2str(hn_nums(hn_ind)) ...
       %       '(' peri_sync '): ' parse_str{1}{1} ]);
-      hn_weight = eval(parse_str{1}{1}) * prof_props.params.synS_mult;
+      hn_weight = eval(parse_str{1}{1});
+      mult_name = ...
+          regexp(fieldnames(prof_props.params), ...
+                 ['synS_mult_HE' num2str(he_num) '_HN' ...
+                  num2str(hn_nums(hn_ind)) '.*' ], 'match');
+      mult_name = [ mult_name{:} ];     % hack
+      mult_name = mult_name{1};
+      if isfield(prof_props.params, 'synS_mult')
+        % general multiplier for all HNs
+        hn_weight = hn_weight * prof_props.params.synS_mult;
+      elseif ~isempty(mult_name)
+        % per HN multiplier exists
+        hn_weight = hn_weight * prof_props.params.(mult_name);
+      end
   
       % read spike times file
       spikes = load(fullfile(input_dir, a_prof.trace_HE.inputname, ...
