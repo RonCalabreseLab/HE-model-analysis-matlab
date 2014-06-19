@@ -62,15 +62,22 @@ else
 
   % convert input name to proper date
   prefix_name = [ 'HE' num2str(gangno) ' ' strrep(inputname, '_', '/') ];
+
+  % add one if files are ascii
+  if ~isempty(regexp(filename, '\.txt$'))
+    chan_add = 1;
+  else
+    chan_add = 0;
+  end
   
   a_htr = struct;
   a_htr.peri_tr = ...
       trace(filename, dt, dy, [ prefix_name ' peri ' id ], ...
-            struct('channel', 2));
+            struct('channel', 1 + chan_add));
 
   a_htr.sync_tr = ...
       trace(filename, dt, dy, [ prefix_name ' sync ' id ], ...
-            struct('channel', 3));
+            struct('channel', 2 + chan_add));
   a_htr.gangno = gangno;
   a_htr.inputname = inputname;
   a_htr.id = id;
