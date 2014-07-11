@@ -60,11 +60,6 @@ a_plot.plots{2} = annotate_plot(2, 'sync');
   
     % neurons
     hn_nums = [7 6 4 3];
-    hn_colors = ...
-        [ 0 153 255;
-          255 0 153;
-          45 157 34;
-          141 86 170 ] ./ 255;
     he_num = a_prof.trace_HE.gangno;
   
     % parse Genesis synaptic weights file
@@ -109,7 +104,7 @@ a_plot.plots{2} = annotate_plot(2, 'sync');
                                  length(spikes), 1), ...
                           'o', 'MarkerSize', 0.5 + hn_weight * 0.5e9, ...
                           'MarkerEdgeColor', 'none', ...
-                          'MarkerFaceColor', hn_colors(hn_ind, :)}, ...
+                          'MarkerFaceColor', hn_colors{hn_nums(hn_ind)}}, ...
                                   {}, '', {}, 'plot')}];
     end
   
