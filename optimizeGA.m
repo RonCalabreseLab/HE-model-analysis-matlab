@@ -50,10 +50,11 @@ par = getParams(a_pf, struct('onlySelect', 1)); % initial params
 param_ranges = getParamRanges(a_pf, struct('onlySelect', 1));
 
 optimset_props = ...
-    mergeStructs(struct('TolFun', 1e-6), optimset);
-    
-if isfield(props, 'optimset')
-  optimset_props = mergeStructs(props.optimset, optimset_props);
+    mergeStructs(struct('TolFun', 1e-6, 'Display', 'iter', ...
+                        'InitialPopulation', par), gaoptimset);
+
+if isfield(props, 'gaoptimset')
+  optimset_props = mergeStructs(props.gaoptimset, optimset_props);
 end
 
 tic;
