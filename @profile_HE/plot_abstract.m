@@ -9,7 +9,8 @@ function a_plot = plot_abstract(a_prof, title_str, props)
 %   a_prof: A trace_HE object.
 %   title_str: (Optional) String to append to plot title.
 %   props: A structure with any optional properties.
-%     plotHNs: If given, plot firing patterns of HN neurons.
+%     plotHNcolors: Plot firing patterns of HN neurons with the colors in this
+%     		cell array (indexed same with HN number).
 %     (passed to trace/plotData and plot_stack)
 %
 % Returns:
@@ -48,7 +49,8 @@ a_plot.plots{2} = annotate_plot(2, 'sync');
   y_level = -23; % mV - line to display burst annotation marks
 
   hn_plots = {};
-  if isfield(props, 'plotHNs')
+  if isfield(props, 'plotHNcolors')
+    hn_colors = props.plotHNcolors;
     
     input_dir = ...
         getFieldDefault(a_prof.trace_HE, 'inputDir', ...
