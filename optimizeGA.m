@@ -10,10 +10,8 @@ function a_pf = optimizeGA(a_pf, props)
 %   		pointer to the object itself (e.g., f(p, a_pf)).
 %   props: A structure with any optional properties.
 %     gaoptimset: Optimization toolbox parameters supercedes defaults.
-%     hybridmethod: Use local optimizer at points selected by GA
-%     		optimizer: 'lsqcurvefit' (default),
-%     		'ktrlink' (requires external libraries), 'fmincon'
-%     		(requires Optimization Toolbox).
+%     initPop: Initial population as a matrix to seed into GA search
+%     		(default=curent selected params in a_pf).
 %
 % Returns:
 %   a_pf: param_func object with optimized parameters.
@@ -40,6 +38,8 @@ if ~ exist('props', 'var')
   props = struct;
 end
 
+start_time = cputime;
+
 props = mergeStructs(props, get(a_pf, 'props'));
 
 error_func = ...
@@ -49,16 +49,18 @@ par = getParams(a_pf, struct('onlySelect', 1)); % initial params
 
 param_ranges = getParamRanges(a_pf, struct('onlySelect', 1));
 
+init_pop = getFieldDefault(props, 'initPop', par);
+
 optimset_props = ...
     mergeStructs(struct('TolFun', 1e-6, 'Display', 'iter', ...
-                        'InitialPopulation', par), gaoptimset);
+                        'InitialPopulation', init_pop), gaoptimset);
 
 if isfield(props, 'gaoptimset')
   optimset_props = mergeStructs(props.gaoptimset, optimset_props);
 end
 
 tic;
-[par, fval, exitflag, output, population, score] = ...
+[pars, fval, exitflag, output, population, score] = ...
     gamultiobj(error_func, length(par), ...
                [], [], [], [], ...
                param_ranges(1, :), param_ranges(2, :), ...
@@ -74,10 +76,15 @@ disp('Fval:')
 fval
 
 % save fit stats in a_pf
-a_pf = setProp(a_pf, 'population', population, 'score', score);
+a_pf = setProp(a_pf, 'population', population, 'score', score, 'pars', pars);
 
 % set back fitted parameters
-a_pf = setParams(a_pf, par, struct('onlySelect', 1));
+a_pf = setParams(a_pf, pars(1, :), struct('onlySelect', 1));
+
+elapsed_seconds = cputime - start_time;
+disp(['Fitting complete in ' ...
+      sprintf('%dh:%dm:%.2fs', round(elapsed_seconds / (60*60)), ...
+              round(elapsed_seconds / 60), mod(elapsed_seconds, 60))])
 
 end
 
