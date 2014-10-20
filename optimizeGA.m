@@ -59,13 +59,11 @@ if isfield(props, 'gaoptimset')
   optimset_props = mergeStructs(props.gaoptimset, optimset_props);
 end
 
-tic;
 [pars, fval, exitflag, output, population, score] = ...
     gamultiobj(error_func, length(par), ...
                [], [], [], [], ...
                param_ranges(1, :), param_ranges(2, :), ...
                optimset_props);
-toc
 
 disp([ 'Exit flag: ' num2str(exitflag) ])
 
