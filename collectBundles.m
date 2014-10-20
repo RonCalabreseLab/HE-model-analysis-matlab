@@ -1,10 +1,23 @@
 function a_bundle = collectBundles(dirname)
-% collect all bundles in current directory and merge into one
+% Collect all bundles in directory and merge into one. When numbering the
+% item indices, count the oldest files first as an indication of earlier
+% parameter search iterations.
 
-bundle_files = dir([ dirname filesep 'trial*bundle.mat' ]);
+bundle_files = ...
+    strsplit(ls('-rt', [ dirname filesep 'trial*bundle.mat' ]), '\s', ...
+             'DelimiterType', 'RegularExpression');
+
+% strsplit workarounds %$#%@#
+if isempty(bundle_files{1}) 
+  bundle_files = bundle_files(2:end);
+end
 
 % load all bundles into a cell array (or celery) and count rows
 num_files = length(bundle_files);
+
+if isempty(bundle_files{end}) 
+  num_files = num_files - 1;
+end
 disp(['Found ' num2str(num_files) ' bundle files. Concatenating...']);
 
 assert(num_files > 0);
@@ -14,11 +27,17 @@ num_db_rows = 0;
 num_joined_db_rows = 0;
 bundles = cell(1, num_files);
 for file_num = 1:num_files
-  s = load([ dirname filesep bundle_files(file_num).name ]);
-  num_dataset_items = num_dataset_items + length(s.a_bundle.dataset.list);
-  num_db_rows = num_db_rows + dbsize(s.a_bundle.db, 1);
-  num_joined_db_rows = num_joined_db_rows + dbsize(s.a_bundle.joined_db, 1);
-  bundles{file_num} = s.a_bundle;
+  try
+    s = load([ bundle_files{file_num} ]);
+    num_dataset_items = num_dataset_items + length(s.a_bundle.dataset.list);
+    num_db_rows = num_db_rows + dbsize(s.a_bundle.db, 1);
+    num_joined_db_rows = num_joined_db_rows + dbsize(s.a_bundle.joined_db, 1);
+    bundles{file_num} = s.a_bundle;
+  catch me
+    file_num
+    disp([ '"' bundle_files{file_num} '"' ])
+    rethrow(me);
+  end
 end
 
 % measure contents of first bundle
