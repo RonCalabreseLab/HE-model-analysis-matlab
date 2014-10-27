@@ -22,6 +22,12 @@ color_input5_22B = [224 226 19]./255;
 color_input5_26A = [76 182 71]./255;
 color_input5_27B = [243 235 26]./255;
 
+input_colors = { color_input5_19A, color_input5_19B, color_input5_20B, ...
+                 color_input5_22B, color_input5_26A, color_input5_27B};
+
+% Mike's markers
+input_markers = { 'o', '<', 's', 'd', '>', 'h' };
+
 % sort by maximal absolute error
 sort_MAE = @(a_db)...
     sortrows(addColumns(a_db, 'Max', ...
