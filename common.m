@@ -14,6 +14,14 @@ hn_colors = {...
 input_names = ...
       {'5_19A', '5_19B', '5_20B', '5_22B', '5_26A', '5_27B'};
 
+% input colors
+color_input5_19A = [28 66 29]./255;
+color_input5_19B = [191 214 48]./255;
+color_input5_20B = [14 129 64]./255;
+color_input5_22B = [224 226 19]./255;
+color_input5_26A = [76 182 71]./255;
+color_input5_27B = [243 235 26]./255;
+
 % sort by maximal absolute error
 sort_MAE = @(a_db)...
     sortrows(addColumns(a_db, 'Max', ...
