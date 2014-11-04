@@ -38,7 +38,7 @@ if ~ exist('props', 'var')
   props = struct;
 end
 
-start_time = cputime;
+start_time = clock;
 
 props = mergeStructs(props, get(a_pf, 'props'));
 
@@ -79,10 +79,11 @@ a_pf = setProp(a_pf, 'population', population, 'score', score, 'pars', pars);
 % set back fitted parameters
 a_pf = setParams(a_pf, pars(1, :), struct('onlySelect', 1));
 
-elapsed_seconds = cputime - start_time;
+elapsed_seconds = etime(clock, start_time);
 disp(['Fitting complete in ' ...
-      sprintf('%dh:%dm:%.2fs', round(elapsed_seconds / (60*60)), ...
-              round(elapsed_seconds / 60), mod(elapsed_seconds, 60))])
+      sprintf('%dh %dm %.2fs', round(elapsed_seconds / (60*60)), ...
+              round(mod(elapsed_seconds, 60*60) / 60), ...
+              mod(elapsed_seconds, 60))])
 
 end
 
