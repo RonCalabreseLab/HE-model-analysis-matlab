@@ -1,10 +1,30 @@
-function a_bundle = collectBundles(dirname)
+function a_bundle = collectBundles(dirname, props)
 % Collect all bundles in directory and merge into one. When numbering the
 % item indices, count the oldest files first as an indication of earlier
 % parameter search iterations.
 
+common
+
+props = defaultValue('props', struct);
+
+% BUG: all external directory listing functions in Matlab R2014a are
+% buggy. There is a buffer clearing issue that either truncates entries
+% or start with junk from last run. Repeating this operation 5-10 times
+% (!) eventually works.
+
+% $$$ bundle_files = ...
+% $$$     strsplit(ls('-rt', [ dirname filesep 'trial*bundle.mat' ]), '\s', ...
+% $$$              'DelimiterType', 'RegularExpression');
+
+ls_cmd = [ 'ls -rt ' dirname filesep 'trial*bundle.mat' ];
+[status, files] = unix(ls_cmd);
+if status ~= 0
+  error([ 'ls failed with status: ' num2str(status) ]);
+end
+
+% => no change!
 bundle_files = ...
-    strsplit(ls('-rt', [ dirname filesep 'trial*bundle.mat' ]), '\s', ...
+    strsplit(files, '\s', ...
              'DelimiterType', 'RegularExpression');
 
 % strsplit workarounds %$#%@#
@@ -81,3 +101,50 @@ for file_num = 2:num_files
   offset_joined_db_rows = ...
       offset_joined_db_rows + dbsize(bundles{file_num}.joined_db, 1);
 end
+
+% workaround to add trial back if missing 
+if ~ any(ismember(getParamNames(a_bundle.joined_db), 'trial'))
+  %  a_bundle.joined_db = joinRows(a_bundle.joined_db, a_bundle.db(:, 'trial'), ...
+  %                             struct('indexColName', 'RowIndex_HE8', ...
+  %                                    'keepIndex', 1))
+  a_bundle.joined_db = makeHErowDb(a_bundle.db);
+end
+  
+% calculated trial number does not match with the earlier convention, so
+% rename it
+% $$$ a_bundle.db = ...
+% $$$     addParams(renameColumns(a_bundle.db, 'trial', 'trialGA'), ...
+% $$$               'trial', (1:dbsize(a_bundle.db, 1))');
+
+% trial numbers were used to be index numbers, to use these new numbers like
+% indices, create a new hash
+precision = getFieldDefault(props, 'precision', 6);
+a_bundle.dataset.props.precision = precision;
+
+% first eliminate trial collusions that overwrote same files
+% $$$ [unique_trials_db, unique_idx] = ...
+% $$$     unique(a_bundle.db(:, 'trialGA'));
+
+% create hash and put it in dataset props
+a_bundle.dataset.props.trialHashFunc = calcTrialHash;
+a_bundle.dataset.props.trial_hash = ...
+    cell2struct(num2cell((1:dbsize(a_bundle.joined_db, 1))'), ...
+                cellfun(@(x) calcTrialHash(x, precision),  ...
+                        num2cell(a_bundle.joined_db(:, 'trial').data), ...
+                        'UniformOutput', false), 1);
+
+% update param_names as well
+a_bundle.dataset.props.param_names = ...
+    getParamNames(a_bundle.joined_db);
+
+% write a new param file
+parfile_name = [ dirname filesep a_bundle.dataset.props.param_row_filename ];
+writeParFile(a_bundle.joined_db, parfile_name, struct('noAppend', 1));
+
+% set the new param file
+a_bundle.dataset.props.param_row_filename = ...
+    parfile_name;
+
+% also set the params directly
+a_bundle.dataset.props.param_rows = ...
+    a_bundle.joined_db(:, 1:a_bundle.joined_db.num_params).data;
