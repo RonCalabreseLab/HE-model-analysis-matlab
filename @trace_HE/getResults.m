@@ -9,6 +9,8 @@ function [ results, intermediate_data ] = getResults(a_htr, props)
 %   a_htr: A trace_HE object.
 %   props: A structure with any optional properties.
 %     onlyTargets: If 1, return target values as result instead of measurements.
+%     HNweights: If given, add to props HN weights parsed from Genesis
+%     		file. If 2, also scale by HN multipliers in profile.
 %
 % Returns:
 %   results: A structure that contain fitness names and values.
@@ -37,7 +39,6 @@ props = defaultValue('props', struct);
 
 % moving these from CalculateFitness
 filter_coef = load('baseline_filter_coeff.mat'); 
-
 
 input_dir = ...
     getFieldDefault(a_htr, 'inputDir', ...
@@ -86,6 +87,35 @@ sync_names = cellfun(@(x)([ 'sync_' x ]), result_names, ...
 %    cellfun(@(x)([ 'HE' num2str(a_htr.gangno) '_' x ]), [peri_names, sync_names], ...
 %                    'UniformOutput', false);
 all_names = [peri_names, sync_names];
+
+if isfield(props, 'HNweights')
+  req_wts = props.HNweights;
+  hn_nums = [3 4 6 7];
+
+  props.HNweights = getHNweights(a_htr, hn_nums);
+
+  if req_wts == 2
+    he_num = a_htr.gangno;
+
+    for hn_ind = 1:length(hn_nums)
+      mult_name = ...
+          regexp(fieldnames(props.params), ...
+                 ['synS_mult_HE' num2str(he_num) '_HN' ...
+                  num2str(hn_nums(hn_ind)) '.*' ], 'match');
+      mult_name = [ mult_name{:} ];     % hack
+      mult_name = mult_name{1};
+      if isfield(props.params, 'synS_mult')
+        % general multiplier for all HNs
+        hn_mult = props.params.synS_mult;
+      elseif ~isempty(mult_name)
+        % per HN multiplier exists
+        hn_mult = props.params.(mult_name);
+      end
+      props.HNweights(hn_ind) = props.HNweights(hn_ind) * hn_mult;
+    end
+  end
+
+end
 
 % return results_profile subclass object
 
