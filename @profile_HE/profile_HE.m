@@ -59,6 +59,8 @@ else
   a_prof.trace_HE = a_trace_HE;
   a_prof.intermediate_data = intermediate_data;
   a_prof.filtered_traces = filtered_traces;
-  
+
   a_prof = class(a_prof, 'profile_HE', results_profile(results, id, props));
 end
+
+
