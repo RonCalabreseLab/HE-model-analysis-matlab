@@ -7,7 +7,7 @@ common
 
 props = defaultValue('props', struct);
 
-% BUG: all external directory listing functions in Matlab R2014a are
+% BUG: all external directory listing functions in Matlab R2014a/b are
 % buggy. There is a buffer clearing issue that either truncates entries
 % or start with junk from last run. Repeating this operation 5-10 times
 % (!) eventually works.
@@ -16,28 +16,42 @@ props = defaultValue('props', struct);
 % $$$     strsplit(ls('-rt', [ dirname filesep 'trial*bundle.mat' ]), '\s', ...
 % $$$              'DelimiterType', 'RegularExpression');
 
-ls_cmd = [ 'ls -rt ' dirname filesep 'trial*bundle.mat' ];
-[status, files] = unix(ls_cmd);
-if status ~= 0
-  error([ 'ls failed with status: ' num2str(status) ]);
-end
+while true
+  ls_cmd = [ 'ls -rt ' dirname filesep 'trial*bundle.mat' ];
+  [status, files] = unix(ls_cmd);
+  if status ~= 0
+    error([ 'ls failed with status: ' num2str(status) ]);
+  end
+  
+  % => no change!
+  bundle_files = ...
+      strsplit(files, '\s', ...
+               'DelimiterType', 'RegularExpression');
 
-% => no change!
-bundle_files = ...
-    strsplit(files, '\s', ...
-             'DelimiterType', 'RegularExpression');
+  % strsplit workarounds %$#%@#
+  if isempty(bundle_files{1}) 
+    bundle_files = bundle_files(2:end);
+  end
 
-% strsplit workarounds %$#%@#
-if isempty(bundle_files{1}) 
-  bundle_files = bundle_files(2:end);
+  if isempty(bundle_files{end}) 
+    bundle_files = bundle_files(1:(end-1));
+  end
+
+  % make sure the output of ls is clean (Matlab bug workaround)
+  if exist(bundle_files{1}, 'file') && exist(bundle_files{end}, 'file')
+    break;
+  else
+    disp(['Can''t find file "' bundle_files{1} '" OR "' bundle_files{end} ...
+          '" assuming broken ls.' ...
+          ' Repeating.'])
+    %system('sleep 1s')
+  end
+  
 end
 
 % load all bundles into a cell array (or celery) and count rows
 num_files = length(bundle_files);
 
-if isempty(bundle_files{end}) 
-  num_files = num_files - 1;
-end
 disp(['Found ' num2str(num_files) ' bundle files. Concatenating...']);
 
 assert(num_files > 0);
