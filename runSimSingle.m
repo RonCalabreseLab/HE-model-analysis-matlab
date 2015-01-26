@@ -1,5 +1,9 @@
 function files = runSimSingle(row_db, genesis_script, props)
   
+% TODO:
+% - need docs
+% - add to Pandora
+  
   props = defaultValue('props', struct);
   
   cmd_suffix = ' > /dev/null 2>&1';
