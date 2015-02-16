@@ -44,7 +44,8 @@ while true
     disp(['Can''t find file "' bundle_files{1} '" OR "' bundle_files{end} ...
           '" assuming broken ls.' ...
           ' Repeating.'])
-    %system('sleep 1s')
+    %system('sleep 1s') => results in an uninterruptible process if
+    %something goes wrong
   end
   
 end
@@ -56,6 +57,7 @@ disp(['Found ' num2str(num_files) ' bundle files. Concatenating...']);
 
 assert(num_files > 0);
 
+% TODO: do this load process in the above loop in case it fails midway
 num_dataset_items = 0;
 num_db_rows = 0;
 num_joined_db_rows = 0;
