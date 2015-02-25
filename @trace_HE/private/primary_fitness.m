@@ -166,7 +166,7 @@ for chanind = 1:nchannels
         fprintf(1,'failed to isolate bursts : null fitness\n');
         fitness_error = 999*ones(nchannels*5,1);
         fitness_raw = repmat(NaN, nchannels*7,1); % return NaN
-        return
+        return % CG: fails to proceed to next channel
     else
         %% initialize arrays
         firstlast{chanind} = sptimes{chanind}(firstlastind);
