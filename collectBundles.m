@@ -158,6 +158,7 @@ parfile_name = [ dirname filesep a_bundle.dataset.props.param_row_filename ];
 writeParFile(a_bundle.joined_db, parfile_name, struct('noAppend', 1));
 
 % set the new param file
+% BUG: giving full path to param file messes up with simNewParams
 a_bundle.dataset.props.param_row_filename = ...
     parfile_name;
 
