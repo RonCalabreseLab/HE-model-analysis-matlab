@@ -1,5 +1,8 @@
 function multobj_fitness = fitnessMultObj(a_bundle, a_crit_db, params_struct, ...
                                           a_pf, props)
+
+  % props:
+  %   fuzzy: If given, min value of squared error would be 1.
   
   props = defaultValue('props', struct);
 
@@ -46,3 +49,7 @@ function multobj_fitness = fitnessMultObj(a_bundle, a_crit_db, params_struct, ..
   
   % return squared z-scores
   multobj_fitness = ranked_db.data .* ranked_db.data;
+  
+  if isfield(props, 'fuzzy')
+    multobj_fitness = max([ones(size(multobj_fitness)); multobj_fitness], [], 1);
+  end
