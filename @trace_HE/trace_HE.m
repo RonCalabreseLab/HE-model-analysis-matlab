@@ -32,7 +32,7 @@ function a_htr = trace_HE(filename, gangno, inputname, dt, dy, id, props)
 % Additional methods:
 %   See methods('trace_HE')
 %
-% See also: trace
+% See also: trace, profile_HE
 %
 % $Id: trace_HE.m 234 2010-10-21 22:06:52Z cengiz $
 %
