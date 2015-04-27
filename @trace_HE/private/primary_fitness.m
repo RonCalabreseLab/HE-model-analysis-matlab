@@ -48,7 +48,6 @@ function [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
 
 minspikes = 10;
 
-
 %fitness_error = [];
 intermediate_data = struct;
 
@@ -136,11 +135,16 @@ for chanind = 1:nchannels
     min_spburst = max(5, floor(avgSPB/3));
     
     max_isi = 1;
+    min_ibi = 0.5;
     
     % primitive adaptive algorithm for identifying bursts:
     % loops until a the correct number of bursts are detected.
     for ipower = 1:11 % 11=ceiling(-log(maxspikefreq * max_isi)/log(0.75)) with maxspikefreq = 20 (between burts, so this is extreme)
-        firstlastind = findburst(sptimes{chanind}, max_isi, min_spburst, targets.StartTime, targets.EndTime); % changed findburst to a more effective algorithm  Oct 11% removed int32(*) dgl
+        firstlastind = ...
+            findburst(sptimes{chanind}, max_isi, min_spburst, min_ibi, ...
+                      targets.StartTime, targets.EndTime); 
+        % changed findburst to a more effective algorithm  Oct 11
+        % removed int32(*) DGL
         
         % CG commented out to clean up output:
         %fprintf(1, '%2d : (%3d ?= %2d)  maxisi:= %f\n',ipower, size(firstlastind, 1), targets.n_bursts , max_isi);
