@@ -1,9 +1,9 @@
-function [ results, intermediate_data ] = getResults(a_htr, props)
+function [ a_prof, intermediate_data ] = getResults(a_htr, props)
 
-% getResults - Returns the raw fitness values.
+% getResults - Returns a profile object with fitness values.
 %
 % Usage:
-% results = getResults(a_htr)
+% [a_prof, intermediate_data] = getResults(a_htr)
 %
 % Parameters:
 %   a_htr: A trace_HE object.
@@ -13,11 +13,12 @@ function [ results, intermediate_data ] = getResults(a_htr, props)
 %     		file. If 2, also scale by HN multipliers in profile.
 %
 % Returns:
-%   results: A structure that contain fitness names and values.
+%   a_prof: A profile_HE object that contains fitness names and values.
+%   intermediate_data: Data structure returned from @trace_HE/private/primary_fitness.
 %
 % Description:
 %
-% See also: trace
+% See also: trace, profile_HE
 %
 % $Id: getResults.m 1335 2012-04-19 18:04:32Z cengique $
 %
@@ -121,7 +122,7 @@ end
 
 % Warning: returning raw fitness, so targets aren't subtracted -
 % although they are used before that.
-results = profile_HE(cell2struct(num2cell(results_vals), ...
+a_prof = profile_HE(cell2struct(num2cell(results_vals), ...
                                  all_names), a_htr, intermediate_data, ...
                      tracedata, a_htr.peri_tr.id, props);
 
