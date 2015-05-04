@@ -32,8 +32,8 @@ props = defaultValue('props', struct);
 prof_props = get(a_htr, 'props');
 
 input_dir = ...
-    getFieldDefault(a_htr, 'inputDir', ...
-                           '../../common/input-patterns');
+    getFieldDefault(prof_props, 'inputDir', ...
+                                '../../common/input-patterns');
     
 he_num = a_htr.gangno;
   
