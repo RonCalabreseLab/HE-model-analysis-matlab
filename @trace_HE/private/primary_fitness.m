@@ -149,8 +149,8 @@ for chanind = 1:nchannels
     % loops until a the correct number of bursts are detected.
     % 11=ceiling(-log(maxspikefreq * max_isi)/log(0.75)) with
     % maxspikefreq = 20 (between burts, so this is extreme)
-    % CG: changed this from 11 to 6    
-    for ipower = 1:6 
+    % CG: changed this from 11 to 6. Even 7 allows dubious cases in.
+    for ipower = 1:6
         firstlastind = ...
             findburst(sptimes{chanind}, max_isi, min_spburst, min_ibi, ...
                       targets.StartTime, targets.EndTime); 
