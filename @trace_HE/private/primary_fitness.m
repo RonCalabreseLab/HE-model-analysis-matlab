@@ -1,11 +1,12 @@
 function [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
-    primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
+    primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, ...
+                     targets, debug)
 
 % primary_fitness - Calculate fitness for one Genesis file (one ganglion).
 %
 % Usage:
 % [fitness_error, functional_model, intermediate_data, freerunisi, tracedata] =
-%    primary_fitness( time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets)
+%    primary_fitness(time, soma_Vm, filterNum, HNfirstlast, HNmediansp, targets, debug)
 %
 % Parameters:
 %   time: 1st column from Genesis file that contains the time vector.
@@ -15,6 +16,7 @@ function [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
 %   		loaded from HN4_peri_stats.mat.
 %   HNmediansp: Time of each median spike [s], also from HN4_peri_stats.mat.
 %   targets: Structure with target values loaded from targetdata.mat.
+%   debug: If 1, print and plot debug info
 %
 % Returns:
 %   fitness_error: Calculated fitness as difference from target for
@@ -46,6 +48,8 @@ function [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
 % 		Added doc. Returns more of the measured characteristics.
 % 		Used to return fitness_error.
 
+debug = defaultValue('debug', false);
+
 minspikes = 10;
 
 %fitness_error = [];
@@ -61,6 +65,8 @@ lpsoma_Vm = filtfilt(filterNum, 1, soma_Vm);
 hpsoma_Vm = soma_Vm - lpsoma_Vm;
 tracedata = struct('lpsoma', lpsoma_Vm, 'hpsoma', hpsoma_Vm);
 
+% TODO: plot tracedata in debug mode
+
 %% detect peaks (spikes) in unfiltered data
 % calculate spike detection parameters
 % threshold = mean(fullsignal) + rms(highpass signal)
@@ -75,6 +81,8 @@ end
 % Threshold = (the max low pass value) + rms value or raw signal. 
 % alternately, threshold = meanVm + rmsval;
 threshold = max(lpsoma_Vm(8192:end-8192,:)) + rmsval;
+
+if debug, threshold, end
 
 spindices = cell(nchannels,1);
 sptimes   = cell(nchannels,1);
@@ -139,15 +147,20 @@ for chanind = 1:nchannels
     
     % primitive adaptive algorithm for identifying bursts:
     % loops until a the correct number of bursts are detected.
-    for ipower = 1:11 % 11=ceiling(-log(maxspikefreq * max_isi)/log(0.75)) with maxspikefreq = 20 (between burts, so this is extreme)
+    % 11=ceiling(-log(maxspikefreq * max_isi)/log(0.75)) with
+    % maxspikefreq = 20 (between burts, so this is extreme)
+    % CG: changed this from 11 to 6    
+    for ipower = 1:6 
         firstlastind = ...
             findburst(sptimes{chanind}, max_isi, min_spburst, min_ibi, ...
                       targets.StartTime, targets.EndTime); 
         % changed findburst to a more effective algorithm  Oct 11
         % removed int32(*) DGL
-        
-        % CG commented out to clean up output:
-        %fprintf(1, '%2d : (%3d ?= %2d)  maxisi:= %f\n',ipower, size(firstlastind, 1), targets.n_bursts , max_isi);
+
+        if debug
+          fprintf(1, '%2d : (%3d ?= %2d)  maxisi:= %f\n', ipower, ...
+                  size(firstlastind, 1), targets.n_bursts , max_isi);
+        end
         if (size(firstlastind, 1) == targets.n_bursts); break; end
         max_isi = max_isi * .75;
         
@@ -196,10 +209,11 @@ for chanind = 1:nchannels
                tmpind = spindices{chanind}([firstlastind(burstind-1,2),firstlastind(burstind,1)]);
                burstmintrough{chanind}(burstind-1) = min(lpsoma_Vm(tmpind(1):tmpind(2),chanind));
            end
-        end
+        end % burstind
         spikeheight{chanind} = hpsoma_Vm([burstspinds{chanind}{:}],chanind);
-    end
-end
+    end % if
+end %chanind
+
 % Trim HNfirstlast and HNmediansp to start/end times
 HN4validinds = find(HNmediansp{1}>=targets.StartTime & HNmediansp{1}<=targets.EndTime);
 HNfirstlast{1} = HNfirstlast{1}(HN4validinds,:);
