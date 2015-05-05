@@ -1,9 +1,9 @@
-function [ a_prof, intermediate_data ] = getResults(a_htr, props)
+function [a_prof, intermediate_data, freerunisistats, tracedata] = getResults(a_htr, props)
 
 % getResults - Returns a profile object with fitness values.
 %
 % Usage:
-% [a_prof, intermediate_data] = getResults(a_htr)
+% [a_prof, intermediate_data, freerunisistats, tracedata] = getResults(a_htr)
 %
 % Parameters:
 %   a_htr: A trace_HE object.
@@ -11,10 +11,12 @@ function [ a_prof, intermediate_data ] = getResults(a_htr, props)
 %     onlyTargets: If 1, return target values as result instead of measurements.
 %     HNweights: If given, add to props HN weights parsed from Genesis
 %     		file. If 2, also scale by HN multipliers in profile.
+%     debug: Passed to primary_fitness.
 %
 % Returns:
 %   a_prof: A profile_HE object that contains fitness names and values.
 %   intermediate_data: Data structure returned from @trace_HE/private/primary_fitness.
+%   freerunisistats, tracedata: Returned from primary_fitness.
 %
 % Description:
 %
@@ -42,7 +44,7 @@ props = defaultValue('props', struct);
 filter_coef = load('baseline_filter_coeff.mat'); 
 
 input_dir = ...
-    getFieldDefault(a_htr, 'inputDir', ...
+    getFieldDefault(a_htr.props, 'inputDir', ...
                            '../../common/input-patterns');
 
 % load target data (associated with input pattern - contains targets for ganglion 8 or 12)
@@ -64,7 +66,8 @@ time = (0:size(a_htr.peri_tr.data, 1))'*a_htr.peri_tr.dt;
 [ fitness_raw, intermediate_data, freerunisistats, tracedata] = ...
     primary_fitness( time,  [a_htr.peri_tr.data, a_htr.sync_tr.data], ...
                      filter_coef.Num, HN4_peri_ref.firstlast, ...
-                     HN4_peri_ref.medianspike, targetdata);
+                     HN4_peri_ref.medianspike, targetdata, ...
+                     getFieldDefault(props, 'debug', false));
 
 if isfield(props, 'onlyTargets')
   % targets only for median phase
