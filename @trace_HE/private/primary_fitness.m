@@ -142,7 +142,7 @@ for chanind = 1:nchannels
     % use either 1/3 a burst or, at minimum, 5 spikes as the minimum number of spikes in a burst.
     min_spburst = max(5, floor(avgSPB/3));
     
-    max_isi = 1;
+    max_isi = 0.421; % CG: changed from 1
     min_ibi = 0.5;
     
     % primitive adaptive algorithm for identifying bursts:
@@ -150,7 +150,7 @@ for chanind = 1:nchannels
     % 11=ceiling(-log(maxspikefreq * max_isi)/log(0.75)) with
     % maxspikefreq = 20 (between burts, so this is extreme)
     % CG: changed this from 11 to 6. Even 7 allows dubious cases in.
-    for ipower = 1:6
+    for ipower = 1:3
         firstlastind = ...
             findburst(sptimes{chanind}, max_isi, min_spburst, min_ibi, ...
                       targets.StartTime, targets.EndTime); 
