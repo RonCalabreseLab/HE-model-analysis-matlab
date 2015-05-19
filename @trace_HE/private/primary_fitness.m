@@ -153,7 +153,7 @@ for chanind = 1:nchannels
     for ipower = 1:2
         firstlastind = ...
             findburst(sptimes{chanind}, max_isi, min_spburst, min_ibi, ...
-                      targets.StartTime, targets.EndTime); 
+                      targets.StartTime, targets.EndTime, debug); 
         % changed findburst to a more effective algorithm  Oct 11
         % removed int32(*) DGL
 
