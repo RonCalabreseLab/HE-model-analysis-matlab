@@ -154,7 +154,12 @@ a_bundle.dataset.props.param_names = ...
     getParamNames(a_bundle.joined_db);
 
 % write a new param file
-parfile_name = [ dirname filesep a_bundle.dataset.props.param_row_filename ];
+if isfield(a_bundle.dataset.props, 'param_row_filename')
+  parfile_name = [ dirname filesep ...
+                   a_bundle.dataset.props.param_row_filename ];
+else
+  parfile_name = [ dirname filesep 'all.par' ];
+end
 writeParFile(a_bundle.joined_db, parfile_name, struct('noAppend', 1));
 
 % set the new param file
