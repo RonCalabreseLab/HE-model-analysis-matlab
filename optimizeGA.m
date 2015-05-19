@@ -83,7 +83,7 @@ if isfield(props, 'godlikeAlgos') && ~ isempty(props.godlikeAlgos)
   % convert options to input required for set_options
   options = ...
       mergeStructs(getFieldDefault(props, 'options', struct), ...
-                   struct);
+                   struct)
   pop_size = getFieldDefault(options, 'PopulationSize', length(par)*50);
   if isfield(options, 'PopulationSize')
     % remove it from GODLIKE options because it's passed as a separate
