@@ -1,5 +1,6 @@
 function a_results_bundle = searchSetCModel(a_bundle, param_row_db, ...
-                                            a_crit_db, sort_func, props)
+                                            a_crit_db, sort_func, ...
+                                            sim_name, props)
 % searchSetCModel - run the search algorithm for a model from set C
 % props:
 %   GAopts: Structure passed to search function (GODLIKE, etc). Inside
@@ -16,6 +17,9 @@ function a_results_bundle = searchSetCModel(a_bundle, param_row_db, ...
 common
 
 props = defaultValue('props', struct);
+
+% For backwards compat
+sim_name = defaultValue('sim_name', 'simhe-2synscales');
 
 % - include model# on directory, initialize dir if needed
 setC_id = param_row_db(1, 'setCId').data;
@@ -46,7 +50,7 @@ if exist(bundle_name, 'file')
 end
 
 a_bundle.dataset.path = ...
-    [ inputdir_name 'data-simhe-2synscales-setCId' num2str(setC_id) ...
+    [ inputdir_name 'data-' sim_name '-setCId' num2str(setC_id) ...
       batch_name ];
 
 % if the directory exists, just proceed to load the bundles
@@ -75,8 +79,7 @@ else
                      a_crit_db, p, the_pf, ...
                      mergeStructs(getFieldDefault(props, 'fitmoProps', struct), ...
                                   struct('precision', 16, ...
-                                         'quiet', 1, ...
-                                         'gFile', 'simhe_2synscales.g')));
+                                         'quiet', 1)));
   
   % add 'quiet', 0 to props to see Genesis output
   a_f = param_func({'N/A', 'Metrics'}, ...
