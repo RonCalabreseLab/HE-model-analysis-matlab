@@ -64,7 +64,7 @@ else
   prefix_name = [ 'HE' num2str(gangno) ' ' strrep(inputname, '_', '/') ];
 
   % add one if files are ascii
-  if ~isempty(regexp(filename, '\.txt$'))
+  if ischar(filename) && ~isempty(regexp(filename, '\.txt$'))
     chan_add = 1;
   else
     chan_add = 0;
