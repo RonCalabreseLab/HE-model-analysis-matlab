@@ -6,4 +6,7 @@
 #PBS -j oe
 #PBS -o Matlab.output.$PBS_JOBID
 
-exec ~/work/brute-scripts/moab_scripts/moab_matlab.sh
+# Change to workdir
+cd $PBS_O_WORKDIR 
+
+exec ~/work/brute-scripts/pbs_scripts/pbs_matlab.sh
