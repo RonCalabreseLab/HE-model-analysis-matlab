@@ -4,7 +4,7 @@ function [a_results_bundle a_ranked_db] = ...
 % searchSetCModel - run the search algorithm for a model from set C
 % props:
 %   GAopts: Structure passed to search function (GODLIKE, etc). Inside
-%   		it, the 'option' field specify extra options to GODLIKE.
+%   		it, the 'options' field specify extra options to GODLIKE.
 %   inputRanges: Column vector of low and high values for inputs
 %   		(default=[0 4]'). If only one column is supplied, it's
 %   		used for all parameters.
