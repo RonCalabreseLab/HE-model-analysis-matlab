@@ -604,13 +604,8 @@ std = [
 0.2139441093
 0.2129998658
 ];
-indexLeft = 
-1458
-idxRight = 
-1758
-maxSTD = 
-0.2635639607
-minSTD = 
-0.1599568140
-traces = 
-301
+indexLeft = 1458
+idxRight = 1758
+maxSTD = 0.2635639607
+minSTD = 0.1599568140
+traces = 301
