@@ -40,7 +40,8 @@ ipsc_std = std_array(i);
 %   E_rev = -62.5 mV
 %   E_hold = -45 mV
 delta_v = (-45 + 62.5);
-ipsc_mag_nS = 1e3 * ipsc_mag / delta_v;
-ipsc_std_nS = 1e3 * ipsc_std / delta_v;
+ipsc_mag_nS = ipsc_mag * (1e3 / delta_v);
+% std must be multiplied by square
+ipsc_std_nS = ipsc_std * (1e3 / delta_v)^2;
 
 
