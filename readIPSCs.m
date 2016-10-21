@@ -31,8 +31,8 @@ end
 % IPSC magnitude [nA] from left point to peak
 [m,i]=max(avg);
 ipsc_mag = m - avg(1);
-% Removed, just too much: std_array(1)
-ipsc_std = std_array(i);
+% Removed, just too much: std_array(1)?
+ipsc_std = std_array(1) + std_array(i);
 
 % convert to conductance [nS]
 % nS = 1e3 * nA / ( E_hold - E_rev [mV]) 
