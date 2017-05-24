@@ -3,14 +3,18 @@ function [ipsc_mag_nS, ipsc_std_nS] = ...
 
 % Read Angela and Anca's files to find IPSC magnitude and standard
 % deviation in nS
+% props: Optional parameters.
+%   suffix: Suffix to add to input name folder (e.g., '-Oct16').
 
 common
 
+props = defaultValue('props', struct);
+suffix = getFieldDefault(props, 'suffix', '');
+
 % or use the which() function to find this script's location
 filename = [ '../../common/analysis/' ...
-             input_names{input_num} '/HN' sprintf('%02d', hn_num) ...
-             'toHE' sprintf('%02d', he_num) '_' ...
-             input_names{input_num} '_avg_std.m' ];
+             input_names{input_num} suffix '/HN' sprintf('%02d', hn_num) ...
+             '_HE' sprintf('%02d', he_num) '_avg_std.m' ];
 
 % load and evaluate all contents of file
 try
@@ -28,11 +32,16 @@ end
 % avg is the average IPSC trace
 % std_array is its STD at each point
 
+% TODO: accept both 'avg' and 'avg_array' in the new files
+if exist('avg', 'var')
+  avg_array = avg;
+end
+
 % IPSC magnitude [nA] from left point to peak
-[m,i]=max(avg);
-ipsc_mag = m - avg(1);
+[m,i]=max(avg_array);
+ipsc_mag = m - avg_array(1);
 % Removed, just too much: std_array(1)?
-ipsc_std = std_array(1) + std_array(i);
+ipsc_std = std_array(i);
 
 % convert to conductance [nS]
 % nS = 1e3 * nA / ( E_hold - E_rev [mV]) 
