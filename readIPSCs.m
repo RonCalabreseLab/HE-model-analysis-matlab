@@ -50,7 +50,7 @@ ipsc_std = std_array(i);
 %   E_hold = -45 mV
 delta_v = (-45 + 62.5);
 ipsc_mag_nS = ipsc_mag * (1e3 / delta_v);
-% std must be multiplied by square
-ipsc_std_nS = ipsc_std * (1e3 / delta_v)^2;
+% std is scaled the same way; only variance must be multiplied by squared factor
+ipsc_std_nS = ipsc_std * (1e3 / delta_v);
 
 
