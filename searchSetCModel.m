@@ -111,7 +111,7 @@ else
          'f_asa_ga_2syns_modeln');
   end                                     % Exist dir
 
-  % load results (load in reverse time order to approximate GA generations)
+  % load results 
   a_results_bundle = ...
       collectBundles([a_bundle.dataset.path], struct('precision', 16)); 
 

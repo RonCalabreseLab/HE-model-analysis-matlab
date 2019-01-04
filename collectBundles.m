@@ -17,6 +17,7 @@ props = defaultValue('props', struct);
 % $$$              'DelimiterType', 'RegularExpression');
 
 while true
+  % load in reverse time order to approximate GA generations
   ls_cmd = [ 'ls -rt ' dirname filesep 'trial*bundle.mat' ];
   [status, files] = unix(ls_cmd);
   if status ~= 0
@@ -64,7 +65,18 @@ num_joined_db_rows = 0;
 bundles = cell(1, num_files);
 for file_num = 1:num_files
   try
-    s = load([ bundle_files{file_num} ]);
+    % Matlab buffer bug workaround; file names broken across two items
+    if ~ exist(bundle_files{file_num}, 'file') && ...
+        exist([bundle_files{file_num} bundle_files{file_num + 1}], 'file')
+      % correct next entry
+      bundle_files{file_num + 1} = [bundle_files{file_num} bundle_files{file_num + 1}];
+      disp(['Matlab bugfix, concatenating entries ' num2str(file_num) '-' num2str(file_num+1) ': "' ...
+            bundle_files{file_num + 1} '"' ]);
+      disp([ 'Next entry #' num2str(file_num + 2) ': "' bundle_files{file_num + 2} '"' ]);
+      continue;
+    else
+      s = load([ bundle_files{file_num} ]);
+    end
     num_dataset_items = num_dataset_items + length(s.a_bundle.dataset.list);
     num_db_rows = num_db_rows + dbsize(s.a_bundle.db, 1);
     num_joined_db_rows = num_joined_db_rows + dbsize(s.a_bundle.joined_db, 1);
