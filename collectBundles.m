@@ -17,8 +17,9 @@ props = defaultValue('props', struct);
 % $$$              'DelimiterType', 'RegularExpression');
 
 while true
+  % Use /bin/sh to prevent garbled output (https://www.mathworks.com/matlabcentral/answers/93930-why-do-system-commands-like-ls-not-function-as-expected-when-i-call-them-from-matlab-7-11-r2010b)
   % load in reverse time order to approximate GA generations
-  ls_cmd = [ 'ls -rt ' dirname filesep 'trial*bundle.mat' ];
+  ls_cmd = [ 'cd ' dirname '; /bin/sh -c "ls -rt trial*bundle.mat" < /dev/null' ];
   [status, files] = unix(ls_cmd);
   if status ~= 0
     error([ 'ls failed with status: ' num2str(status) ]);
@@ -39,7 +40,8 @@ while true
   end
 
   % make sure the output of ls is clean (Matlab bug workaround)
-  if exist(bundle_files{1}, 'file') && exist(bundle_files{end}, 'file')
+  if exist([dirname filesep bundle_files{1}], 'file') && ...
+      exist([dirname filesep bundle_files{end}], 'file')
     break;
   else
     disp(['Can''t find file "' bundle_files{1} '" OR "' bundle_files{end} ...
@@ -66,8 +68,8 @@ bundles = cell(1, num_files);
 for file_num = 1:num_files
   try
     % Matlab buffer bug workaround; file names broken across two items
-    if ~ exist(bundle_files{file_num}, 'file') && ...
-        exist([bundle_files{file_num} bundle_files{file_num + 1}], 'file')
+    if ~ exist([ dirname filesep bundle_files{file_num} ], 'file') && ...
+        exist([dirname filesep bundle_files{file_num} bundle_files{file_num + 1}], 'file')
       % correct next entry
       bundle_files{file_num + 1} = [bundle_files{file_num} bundle_files{file_num + 1}];
       disp(['Matlab bugfix, concatenating entries ' num2str(file_num) '-' num2str(file_num+1) ': "' ...
@@ -75,7 +77,7 @@ for file_num = 1:num_files
       disp([ 'Next entry #' num2str(file_num + 2) ': "' bundle_files{file_num + 2} '"' ]);
       continue;
     else
-      s = load([ bundle_files{file_num} ]);
+      s = load([ dirname filesep bundle_files{file_num} ]);
     end
     num_dataset_items = num_dataset_items + length(s.a_bundle.dataset.list);
     num_db_rows = num_db_rows + dbsize(s.a_bundle.db, 1);
