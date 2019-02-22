@@ -113,7 +113,7 @@ else
 
   % load results 
   a_results_bundle = ...
-      collectBundles([a_bundle.dataset.path], struct('precision', 16)); 
+      collectBundles([a_bundle.dataset.path], mergeStructs(props, struct('precision', 16))); 
 
 end % found bundle
 

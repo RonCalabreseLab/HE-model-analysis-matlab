@@ -67,18 +67,18 @@ num_joined_db_rows = 0;
 bundles = cell(1, num_files);
 for file_num = 1:num_files
   try
-    % Matlab buffer bug workaround; file names broken across two items
-    if ~ exist([ dirname filesep bundle_files{file_num} ], 'file') && ...
-        exist([dirname filesep bundle_files{file_num} bundle_files{file_num + 1}], 'file')
-      % correct next entry
-      bundle_files{file_num + 1} = [bundle_files{file_num} bundle_files{file_num + 1}];
-      disp(['Matlab bugfix, concatenating entries ' num2str(file_num) '-' num2str(file_num+1) ': "' ...
-            bundle_files{file_num + 1} '"' ]);
-      disp([ 'Next entry #' num2str(file_num + 2) ': "' bundle_files{file_num + 2} '"' ]);
-      continue;
-    else
-      s = load([ dirname filesep bundle_files{file_num} ]);
-    end
+% $$$     % Matlab buffer bug workaround; file names broken across two items
+% $$$     if ~ exist([ dirname filesep bundle_files{file_num} ], 'file') && ...
+% $$$         exist([dirname filesep bundle_files{file_num} bundle_files{file_num + 1}], 'file')
+% $$$       % correct next entry
+% $$$       bundle_files{file_num + 1} = [bundle_files{file_num} bundle_files{file_num + 1}];
+% $$$       disp(['Matlab bugfix, concatenating entries ' num2str(file_num) '-' num2str(file_num+1) ': "' ...
+% $$$             bundle_files{file_num + 1} '"' ]);
+% $$$       disp([ 'Next entry #' num2str(file_num + 2) ': "' bundle_files{file_num + 2} '"' ]);
+% $$$       continue;
+% $$$     else
+    s = load([ dirname filesep bundle_files{file_num} ]);
+% $$$     end
     num_dataset_items = num_dataset_items + length(s.a_bundle.dataset.list);
     num_db_rows = num_db_rows + dbsize(s.a_bundle.db, 1);
     num_joined_db_rows = num_joined_db_rows + dbsize(s.a_bundle.joined_db, 1);
@@ -134,17 +134,13 @@ end
 
 % workaround to add trial back if missing 
 if ~ any(ismember(getParamNames(a_bundle.joined_db), 'trial'))
-  %  a_bundle.joined_db = joinRows(a_bundle.joined_db, a_bundle.db(:, 'trial'), ...
-  %                             struct('indexColName', 'RowIndex_HE8', ...
-  %                                    'keepIndex', 1))
   a_bundle.joined_db = makeHErowDb(a_bundle.db);
 end
-  
-% calculated trial number does not match with the earlier convention, so
-% rename it
-% $$$ a_bundle.db = ...
-% $$$     addParams(renameColumns(a_bundle.db, 'trial', 'trialGA'), ...
-% $$$               'trial', (1:dbsize(a_bundle.db, 1))');
+
+% re-create joined_db if a join_func is specified
+if isfield(props, 'joinDBfunc')
+  a_bundle.joined_db = feval(props.joinDBfunc, a_bundle.db);
+end
 
 % trial numbers were used to be index numbers, to use these new numbers like
 % indices, create a new hash
